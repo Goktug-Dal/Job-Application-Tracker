@@ -1,0 +1,5 @@
+python -m pip install django
+python -m django startproject job_application_tracker
+cd .\job_application_tracker\
+python manage.py runserver
+python manage.py startapp base
