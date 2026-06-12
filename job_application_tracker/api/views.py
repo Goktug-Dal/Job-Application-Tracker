@@ -9,6 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 from base.models import Job
 from .serializers import JobSerializer
 
+from django.shortcuts import get_object_or_404
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getAll(request):
@@ -26,10 +28,10 @@ def createJob(request):
         return Response(serializer.data)
     return Response(serializer.errors, status = 400)
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def editJob(request, id):
-    job = Job.objects.get(id = id, user = request.user)
+    job = get_object_or_404(Job, id = id, user = request.user)
     serializer = JobSerializer(job, data = request.data, partial = True)
 
     if serializer.is_valid():

@@ -131,11 +131,16 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://192.168.1.84:3000",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+#CORS_ALLOW_ALL_ORIGINS = True
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ( 
-        "rest_framework_simplejwt.authentication.JWTAuthentication", 
-    )
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication', # Optional: keep if you still want to use the browsable API in your browser
+    ),
+    # Optional but highly recommended:
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }

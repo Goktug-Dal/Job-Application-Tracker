@@ -4,4 +4,6 @@ from base.models import Job
 class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
-        field = '__all__'
+        fields = '__all__'
+
+        read_only_fields = ['user']

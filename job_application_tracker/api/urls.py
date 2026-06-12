@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('api/getAll/', views.getAll),
-    
+    path('getAll/', views.getAll),
+    path('createJob/', views.createJob),
+    path('editJob/<int:id>/',views.editJob),
+    #path('/', views.),
 ]
