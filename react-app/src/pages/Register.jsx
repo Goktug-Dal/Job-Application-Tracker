@@ -2,39 +2,35 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
-export default function Login() {
+export default function Register() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const loginUser = async (e) => {
+    const registerUser = async (e) => {
         e.preventDefault();
         setError(null);
 
         try {
-            const response = await axios.post(
-                "http://127.0.0.1:8000/api/token/",
+            await axios.post(
+                "http://127.0.0.1:8000/api/register/",
                 { username, password }
             );
-
-            // Store the JWT tokens exactly where customAxios expects to find them
-            localStorage.setItem("access", response.data.access);
-            localStorage.setItem("refresh", response.data.refresh);
             
-            // Send the user to the Dashboard
-            navigate("/"); 
+            alert("Account created successfully!");
+            navigate("/login"); // Send them to login after creating the account
         } catch (err) {
-            setError("Invalid username or password.");
+            setError("Failed to register. Username might be taken.");
         }
     };
 
     return (
         <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
-            <h2>Login</h2>
+            <h2>Register</h2>
             {error && <p style={{ color: "red" }}>{error}</p>}
 
-            <form onSubmit={loginUser} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <form onSubmit={registerUser} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <input
                     placeholder="Username"
                     value={username}
@@ -52,13 +48,13 @@ export default function Login() {
                     style={{ padding: "8px" }}
                 />
 
-                <button type="submit" style={{ backgroundColor: "#007bff", color: "white", padding: "10px", border: "none", borderRadius: "5px", cursor: "pointer" }}>
-                    Login
+                <button type="submit" style={{ backgroundColor: "#28a745", color: "white", padding: "10px", border: "none", borderRadius: "5px", cursor: "pointer" }}>
+                    Register
                 </button>
             </form>
             
             <p style={{ marginTop: "15px" }}>
-                Don't have an account? <Link to="/register">Register here</Link>
+                Already have an account? <Link to="/login">Login here</Link>
             </p>
         </div>
     );

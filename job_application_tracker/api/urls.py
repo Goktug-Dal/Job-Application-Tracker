@@ -5,5 +5,6 @@ urlpatterns = [
     path('getAll/', views.getAll),
     path('createJob/', views.createJob),
     path('editJob/<int:id>/',views.editJob),
+    path('deleteJob/<int:id>/', views.deleteJob),
     #path('/', views.),
 ]

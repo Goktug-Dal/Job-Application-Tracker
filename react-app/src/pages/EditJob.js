@@ -1,16 +1,41 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createJob } from "../api/jobs";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { updateJob } from "../api/jobs";
 
-export default function CreateJob() {
-    const [name, setName] = useState("");
-    const [applyLink, setApplyLink] = useState("");
-    const [status, setStatus] = useState("on_hold"); 
-    const [workType, setWorkType] = useState("is_office");
-    const [duration, setDuration] = useState(0);
+export default function EditJob() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { id } = useParams();
 
+    const job = location.state?.job;
+
+    const getInitialStatus = () => {
+        if (!job) return "on_hold";
+        if (job.is_accepted) return "is_accepted";
+        if (job.is_rejected) return "is_rejected";
+        if (job.in_interview_process) return "in_interview_process";
+        if (job.is_applied) return "is_applied";
+        if (job.is_no_response) return "is_no_response";
+        return "on_hold";
+    };
+
+    const getInitialWorkType = () => {
+        if (!job) return "is_office";
+        if (job.is_remote) return "is_remote";
+        if (job.is_hybrid) return "is_hybrid";
+        return "is_office";
+    };
+
+    const [name, setName] = useState(job?.name || "");
+    const [applyLink, setApplyLink] = useState(job?.apply_link || "");
+    const [status, setStatus] = useState(getInitialStatus());
+    const [workType, setWorkType] = useState(getInitialWorkType());
+    const [duration, setDuration] = useState(job?.day_work_duration || 0);
     const [error, setError] = useState(null);
-    const navigate = useNavigate(); 
+
+    useEffect(() => {
+        if (!job) navigate("/");
+    }, [job, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,17 +57,19 @@ export default function CreateJob() {
         };
 
         try {
-            await createJob(jobData);
+            await updateJob(id, jobData);
             navigate("/"); 
         } catch (err) {
-            console.error("Failed to create job:", err);
-            setError(err.response?.data ? JSON.stringify(err.response.data) : "Something went wrong.");
+            console.error("Failed to update job:", err);
+            setError("Failed to update job.");
         }
     };
 
+    if (!job) return null; 
+
     return (
         <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
-            <h2>Create New Job</h2>
+            <h2>Edit Job Application</h2>
             {error && <p style={{ color: "red", backgroundColor: "#ffe6e6", padding: "10px", borderRadius: "5px" }}>{error}</p>}
 
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
@@ -53,7 +80,7 @@ export default function CreateJob() {
 
                 <div>
                     <label>Application Link</label><br />
-                    <input type="url" value={applyLink} onChange={(e) => setApplyLink(e.target.value)} required placeholder="https://..." style={{ width: "100%", padding: "8px" }} />
+                    <input type="url" value={applyLink} onChange={(e) => setApplyLink(e.target.value)} required style={{ width: "100%", padding: "8px" }} />
                 </div>
 
                 <div>
@@ -84,8 +111,8 @@ export default function CreateJob() {
                     </div>
                 </div>
 
-                <button type="submit" style={{ backgroundColor: "#28a745", color: "white", padding: "10px", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold", marginTop: "10px" }}>
-                    Save Job
+                <button type="submit" style={{ backgroundColor: "#007bff", color: "white", padding: "10px", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold", marginTop: "10px" }}>
+                    Update Job
                 </button>
             </form>
         </div>

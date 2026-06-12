@@ -11,6 +11,8 @@ from .serializers import JobSerializer
 
 from django.shortcuts import get_object_or_404
 
+from rest_framework import status
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getAll(request):
@@ -38,3 +40,13 @@ def editJob(request, id):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status = 400)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteJob(request,id):
+    try:
+        job = Job.objects.get(id = id, user = request.user)
+        job.delete()
+        return Response({"message": "Job deleted successfully"}, status=status.HTTP_200_OK)
+    except Job.DoesNotExist:
+        return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
