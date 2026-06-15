@@ -35,25 +35,51 @@ A full-stack web application that helps users organize and track their job appli
 * Docker
 * Docker Compose
 
+## 🔗 Live Demo
+
+You can try the application here:
+https://your-project-name.vercel.app
+
+> Note: This is the easiest way to test the project without running it locally.
+
 ## 📦 Installation
 
-```bash
+```bash id="kq8m1v"
 git clone https://github.com/yourusername/job-tracker.git
 cd job-tracker
+```
 
+## ⚙️ Environment Setup
 
+This project uses environment variables for configuration.
 
+You must create a `.env` file in the backend directory before running the project.
+
+Example `.env`:
+
+```env id="p7v2aa"
+SECRET_KEY=your_secret_key
+DEBUG=True
+
+DATABASE_NAME=jobtracker
+DATABASE_USER=postgres
+DATABASE_PASSWORD=postgres
+DATABASE_HOST=db
+DATABASE_PORT=5432
+```
+
+> Note: `.env` is included in `.gitignore`, so it is not pushed to the repository for security reasons.
+
+## 🚀 Run with Docker
+
+```bash id="m2n9kc"
 docker-compose up --build
 ```
-## Website
 
-#---
+## 🌐 Access the App
 
-
-Open:
-
-* Frontend: `http://localhost:3000`
-* Backend: `http://localhost:8000`
+* Frontend: http://localhost:3000
+* Backend API: http://localhost:8000
 
 ## 🔮 Future Improvements
 
