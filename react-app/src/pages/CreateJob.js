@@ -8,6 +8,8 @@ export default function CreateJob() {
     const [status, setStatus] = useState("on_hold"); 
     const [workType, setWorkType] = useState("is_office");
     const [duration, setDuration] = useState(0);
+    const [company, setCompany] = useState("");
+    const [notes, setNotes] = useState("");
 
     const [error, setError] = useState(null);
     const navigate = useNavigate(); 
@@ -18,7 +20,9 @@ export default function CreateJob() {
 
         const jobData = {
             name: name,
+            company: company,
             apply_link: applyLink,
+            notes: notes,
             day_work_duration: duration,
             on_hold: status === "on_hold",
             is_applied: status === "is_applied",
@@ -54,6 +58,16 @@ export default function CreateJob() {
                 <div>
                     <label>Application Link</label><br />
                     <input type="url" value={applyLink} onChange={(e) => setApplyLink(e.target.value)} required placeholder="https://..." style={{ width: "100%", padding: "8px" }} />
+                </div>
+
+                <div>
+                <label>Company</label><br />
+                <input type="text" value={company} onChange={(e) => setCompany(e.target.value)} required style={{ width: "100%", padding: "8px" }} />
+                </div>
+
+                <div>
+                <label>Interview Notes / Details</label><br />
+                    <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows="4" style={{ width: "100%", padding: "8px", resize: "vertical" }} />
                 </div>
 
                 <div>

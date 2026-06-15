@@ -9,6 +9,11 @@ from django.contrib.auth.models import User
 
 class Job(models.Model):
     name = models.CharField(max_length=100, null=False)
+
+    #some stuff
+    company = models.CharField(max_length= 100, default= "Unknown")
+    notes = models.TextField(max_length=500, blank= True,null=True)
+
     #work status
     is_applied = models.BooleanField(default = False)
     is_no_response = models.BooleanField(default = True)
