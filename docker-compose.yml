@@ -2,11 +2,11 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend # Point this to your actual Django folder name
+    build: ./job_application_tracker # Point this to your actual Django folder name
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
+      - ./job_application_tracker:/app
 
   frontend:
     build: ./react-app
