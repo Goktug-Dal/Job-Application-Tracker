@@ -13,7 +13,7 @@ export default function Register() {
         setError(null);
 
         try {
-            await axios.post("https://job-application-tracker-7ykl.onrender.com/api/register/", { 
+            const response = await axios.post("https://job-application-tracker-7ykl.onrender.com/api/register/", { 
                 username: username, 
                 password: password 
             });
