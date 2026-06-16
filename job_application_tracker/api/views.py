@@ -13,6 +13,10 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 
+from django.contrib.auth.models import User
+from rest_framework import generics
+from .serializers import UserSerializer
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getAll(request):
@@ -50,3 +54,11 @@ def deleteJob(request,id):
         return Response({"message": "Job deleted successfully"}, status=status.HTTP_200_OK)
     except Job.DoesNotExist:
         return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+#User Create Class
+class CreateUserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny] # Very important: Allows guests to register!
