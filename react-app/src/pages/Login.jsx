@@ -14,7 +14,7 @@ export default function Login() {
 
         try {
             const response = await axios.post(
-                "http://job-application-tracker-7ykl.onrender.com/api/token/",
+                "https://job-application-tracker-7ykl.onrender.com/api/token/",
                 { username, password }
             );
 
