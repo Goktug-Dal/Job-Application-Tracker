@@ -1,25 +1,26 @@
-import customAxios from "../customAxios";
+import axios from "axios";
 
-// Fetch all jobs
+const API_BASE_URL = "https://job-application-tracker-7ykl.onrender.com/api";
+
 export const getJobs = async () => {
-    const response = await customAxios.get("/getAll/");
+    const token = localStorage.getItem("access"); // Grab the token!
+    const response = await axios.get(`${API_BASE_URL}/getAll/`, {
+        headers: { Authorization: `Bearer ${token}` } // Send it to Django!
+    });
     return response.data;
 };
 
-// Create a new job
-export const createJob = async (jobData) => {
-    const response = await customAxios.post("/createJob/", jobData);
-    return response.data;
-};
-
-// Update an existing job
-export const updateJob = async (id, jobData) => {
-    const response = await customAxios.put(`/editJob/${id}/`, jobData);
-    return response.data;
-};
-
-// Delete an existing job
 export const deleteJob = async (id) => {
-    const response = await customAxios.delete(`/deleteJob/${id}/`);
+    const token = localStorage.getItem("access");
+    await axios.delete(`${API_BASE_URL}/deleteJob/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+};
+
+export const updateJob = async (id, jobData) => {
+    const token = localStorage.getItem("access");
+    const response = await axios.put(`${API_BASE_URL}/editJob/${id}/`, jobData, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
     return response.data;
 };

@@ -13,16 +13,15 @@ export default function Login() {
         setError(null);
 
         try {
+            // FIXED: Using HTTPS!
             const response = await axios.post(
                 "https://job-application-tracker-7ykl.onrender.com/api/token/",
                 { username, password }
             );
 
-            // Store the JWT tokens exactly where customAxios expects to find them
             localStorage.setItem("access", response.data.access);
             localStorage.setItem("refresh", response.data.refresh);
             
-            // Send the user to the Dashboard
             navigate("/"); 
         } catch (err) {
             setError("Invalid username or password.");
@@ -42,7 +41,6 @@ export default function Login() {
                     required
                     style={{ padding: "8px" }}
                 />
-
                 <input
                     type="password"
                     placeholder="Password"
@@ -51,7 +49,6 @@ export default function Login() {
                     required
                     style={{ padding: "8px" }}
                 />
-
                 <button type="submit" style={{ backgroundColor: "#007bff", color: "white", padding: "10px", border: "none", borderRadius: "5px", cursor: "pointer" }}>
                     Login
                 </button>

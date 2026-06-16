@@ -4,8 +4,6 @@ import { Link } from "react-router-dom";
 import StatsView from "../components/StatsView"; 
 import KanbanBoard from "../components/KanbanBoard"; 
 
-// --- 1. HIGH-FIDELITY DUMMY DATA ---
-// These match your exact Django model schema so the Board and Stats views work natively.
 const DUMMY_JOBS = [
     { id: 'demo1', name: 'Backend Engineer', company: 'Stark Industries', apply_link: '#', notes: 'Using Python & Django', day_work_duration: 5, is_remote: true, is_hybrid: false, is_applied: true, in_interview_process: false, is_accepted: false, is_rejected: false, is_no_response: false, on_hold: false },
     { id: 'demo2', name: 'DevOps Intern', company: 'Wayne Enterprises', apply_link: '#', notes: 'Docker and AWS focus', day_work_duration: 4, is_remote: false, is_hybrid: true, is_applied: false, in_interview_process: true, is_accepted: false, is_rejected: false, is_no_response: false, on_hold: false },
@@ -18,26 +16,21 @@ export default function Dashboard() {
     const [jobs, setJobs] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
     const [sortBy, setSortBy] = useState("newest");
     const [viewMode, setViewMode] = useState("list"); 
-
-    // --- 2. NEW DEMO MODE STATE ---
     const [isDemoMode, setIsDemoMode] = useState(false);
 
     useEffect(() => {
-        // Check if user is actually logged in
-        const token = localStorage.getItem("token"); // Adjust this key if you named your token differently!
+        // FIXED: Looking for "access" to match Login/Register
+        const token = localStorage.getItem("access"); 
 
         if (!token) {
-            // Guest Mode: Load dummy data instantly
             setJobs(DUMMY_JOBS);
             setIsDemoMode(true);
             setLoading(false);
         } else {
-            // Authenticated Mode: Fetch real data
             fetchJobs();
         }
     }, []);
@@ -46,10 +39,13 @@ export default function Dashboard() {
         try {
             const data = await getJobs();
             setJobs(data); 
+            setIsDemoMode(false); // FIXED: Turn off demo mode if successful
             setLoading(false);
         } catch (err) {
-            console.error("Error fetching jobs:", err);
-            setError("Failed to load jobs.");
+            console.error("Error fetching real jobs:", err);
+            // Fallback to demo mode if token is invalid/expired
+            setJobs(DUMMY_JOBS);
+            setIsDemoMode(true);
             setLoading(false);
         }
     };
@@ -58,7 +54,6 @@ export default function Dashboard() {
         const confirmDelete = window.confirm("Are you sure you want to delete this job?");
         if (!confirmDelete) return;
 
-        // If in demo mode, just delete it locally from the screen
         if (isDemoMode) {
             setJobs(jobs.filter(job => job.id !== id));
             return;
@@ -87,17 +82,15 @@ export default function Dashboard() {
             [newStatusFlag]: true 
         };
 
-        // Instantly update the UI
         setJobs(jobs.map(job => job.id === jobId ? updatedJobData : job));
 
-        // IMPORTANT: Prevent guests from sending API requests to Render
         if (isDemoMode) return; 
 
         try {
             await updateJob(jobId, updatedJobData);
         } catch (err) {
             console.error("Failed to save move:", err);
-            alert("Failed to save that move to the database. Reverting!");
+            alert("Failed to save to database. Reverting!");
             fetchJobs(); 
         }
     };
@@ -119,12 +112,8 @@ export default function Dashboard() {
 
     const processedJobs = jobs
         .filter((job) => {
-            if (searchQuery && !job.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-                return false;
-            }
-            if (filterStatus !== "all") {
-                if (!job[filterStatus]) return false;
-            }
+            if (searchQuery && !job.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+            if (filterStatus !== "all" && !job[filterStatus]) return false;
             return true;
         })
         .sort((a, b) => {
@@ -136,23 +125,12 @@ export default function Dashboard() {
         });
 
     if (loading) return <div style={{ padding: "20px", textAlign: "center" }}>Loading your jobs...</div>;
-    if (error) return <div style={{ padding: "20px", color: "red", textAlign: "center" }}>{error}</div>;
 
     return (
         <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
             
-            {/* --- 3. THE GUEST BANNER --- */}
             {isDemoMode && (
-                <div style={{
-                    backgroundColor: '#fff3cd',
-                    color: '#856404',
-                    padding: '12px 15px',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                    border: '1px solid #ffeeba',
-                    marginBottom: '20px',
-                    borderRadius: '6px'
-                }}>
+                <div style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '12px 15px', textAlign: 'center', fontWeight: 'bold', border: '1px solid #ffeeba', marginBottom: '20px', borderRadius: '6px' }}>
                     👋 You are viewing the demo sandbox. 
                     <Link to="/login" style={{ color: '#533f03', marginLeft: '10px', textDecoration: 'underline' }}>Log in</Link> or 
                     <Link to="/register" style={{ color: '#533f03', marginLeft: '5px', textDecoration: 'underline' }}>Register</Link> to save your own applications!
@@ -161,7 +139,6 @@ export default function Dashboard() {
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                 <h2 style={{ margin: 0 }}>Your Job Applications</h2>
-                {/* Hide the Add button if they are a guest so they don't try to add to the fake DB */}
                 {!isDemoMode && (
                     <Link to="/create-job" style={{ backgroundColor: "#007bff", color: "white", padding: "10px 15px", textDecoration: "none", borderRadius: "5px", fontWeight: "bold" }}>
                         + Add New Job
@@ -171,15 +148,9 @@ export default function Dashboard() {
 
             {jobs.length > 0 && (
                 <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-                    <button onClick={() => setViewMode("list")} style={{ padding: "8px 16px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: viewMode === "list" ? "#007bff" : "white", color: viewMode === "list" ? "white" : "black", fontWeight: "bold" }}>
-                        📝 List View
-                    </button>
-                    <button onClick={() => setViewMode("board")} style={{ padding: "8px 16px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: viewMode === "board" ? "#007bff" : "white", color: viewMode === "board" ? "white" : "black", fontWeight: "bold" }}>
-                        📌 Board View
-                    </button>
-                    <button onClick={() => setViewMode("stats")} style={{ padding: "8px 16px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: viewMode === "stats" ? "#007bff" : "white", color: viewMode === "stats" ? "white" : "black", fontWeight: "bold" }}>
-                        📊 Analytics
-                    </button>
+                    <button onClick={() => setViewMode("list")} style={{ padding: "8px 16px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: viewMode === "list" ? "#007bff" : "white", color: viewMode === "list" ? "white" : "black", fontWeight: "bold" }}>📝 List View</button>
+                    <button onClick={() => setViewMode("board")} style={{ padding: "8px 16px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: viewMode === "board" ? "#007bff" : "white", color: viewMode === "board" ? "white" : "black", fontWeight: "bold" }}>📌 Board View</button>
+                    <button onClick={() => setViewMode("stats")} style={{ padding: "8px 16px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: viewMode === "stats" ? "#007bff" : "white", color: viewMode === "stats" ? "white" : "black", fontWeight: "bold" }}>📊 Analytics</button>
                 </div>
             )}
             
@@ -235,7 +206,6 @@ export default function Dashboard() {
                                     </p>
 
                                     <div style={{ marginTop: "15px" }}>
-                                        {/* Disabled edit/delete visually for guests so they aren't confused */}
                                         {!isDemoMode && (
                                             <Link to={`/edit-job/${job.id}`} state={{ job: job }} style={{ backgroundColor: "#ffc107", color: "black", textDecoration: "none", padding: "6px 12px", borderRadius: "4px", marginRight: "10px", fontSize: "14px" }}>Edit</Link>
                                         )}
