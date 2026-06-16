@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
-// 1. We imported updateJob so the Kanban board can save changes
 import { getJobs, deleteJob, updateJob } from "../api/jobs"; 
 import { Link } from "react-router-dom";
 import StatsView from "../components/StatsView"; 
-// 2. Import the new board
 import KanbanBoard from "../components/KanbanBoard"; 
+
+// --- 1. HIGH-FIDELITY DUMMY DATA ---
+// These match your exact Django model schema so the Board and Stats views work natively.
+const DUMMY_JOBS = [
+    { id: 'demo1', name: 'Backend Engineer', company: 'Stark Industries', apply_link: '#', notes: 'Using Python & Django', day_work_duration: 5, is_remote: true, is_hybrid: false, is_applied: true, in_interview_process: false, is_accepted: false, is_rejected: false, is_no_response: false, on_hold: false },
+    { id: 'demo2', name: 'DevOps Intern', company: 'Wayne Enterprises', apply_link: '#', notes: 'Docker and AWS focus', day_work_duration: 4, is_remote: false, is_hybrid: true, is_applied: false, in_interview_process: true, is_accepted: false, is_rejected: false, is_no_response: false, on_hold: false },
+    { id: 'demo3', name: 'Full-Stack Developer', company: 'Cyberdyne Systems', apply_link: '#', notes: 'React + Node', day_work_duration: 5, is_remote: true, is_hybrid: false, is_applied: false, in_interview_process: true, is_accepted: false, is_rejected: false, is_no_response: false, on_hold: false },
+    { id: 'demo4', name: 'Software Engineer', company: 'Oscorp', apply_link: '#', notes: 'Great benefits', day_work_duration: 5, is_remote: false, is_hybrid: false, is_applied: false, in_interview_process: false, is_accepted: true, is_rejected: false, is_no_response: false, on_hold: false },
+    { id: 'demo5', name: 'Cloud Architect', company: 'Umbrella Corp', apply_link: '#', notes: 'Requires clearance', day_work_duration: 5, is_remote: true, is_hybrid: false, is_applied: false, in_interview_process: false, is_accepted: false, is_rejected: true, is_no_response: false, on_hold: false }
+];
 
 export default function Dashboard() {
     const [jobs, setJobs] = useState([]); 
@@ -14,12 +22,24 @@ export default function Dashboard() {
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
     const [sortBy, setSortBy] = useState("newest");
+    const [viewMode, setViewMode] = useState("list"); 
 
-    // 3. Added "board" to our available views
-    const [viewMode, setViewMode] = useState("list"); // "list", "stats", or "board"
+    // --- 2. NEW DEMO MODE STATE ---
+    const [isDemoMode, setIsDemoMode] = useState(false);
 
     useEffect(() => {
-        fetchJobs();
+        // Check if user is actually logged in
+        const token = localStorage.getItem("token"); // Adjust this key if you named your token differently!
+
+        if (!token) {
+            // Guest Mode: Load dummy data instantly
+            setJobs(DUMMY_JOBS);
+            setIsDemoMode(true);
+            setLoading(false);
+        } else {
+            // Authenticated Mode: Fetch real data
+            fetchJobs();
+        }
     }, []);
 
     const fetchJobs = async () => {
@@ -38,6 +58,12 @@ export default function Dashboard() {
         const confirmDelete = window.confirm("Are you sure you want to delete this job?");
         if (!confirmDelete) return;
 
+        // If in demo mode, just delete it locally from the screen
+        if (isDemoMode) {
+            setJobs(jobs.filter(job => job.id !== id));
+            return;
+        }
+
         try {
             await deleteJob(id);
             setJobs(jobs.filter(job => job.id !== id));
@@ -46,37 +72,35 @@ export default function Dashboard() {
         }
     };
 
-    // --- NEW: The Magic Function for the Kanban Board ---
     const handleStatusChange = async (jobId, newStatusFlag) => {
-        // Find the full job object from our state
         const jobToUpdate = jobs.find(j => j.id === jobId);
         if (!jobToUpdate) return;
 
-        // Build the new payload, setting ALL statuses to false EXCEPT the new one
         const updatedJobData = {
-            ...jobToUpdate, // Keep name, company, link, etc exactly the same
+            ...jobToUpdate, 
             on_hold: false,
             is_applied: false,
             in_interview_process: false,
             is_accepted: false,
             is_rejected: false,
             is_no_response: false,
-            [newStatusFlag]: true // Dynamically set the new column to True
+            [newStatusFlag]: true 
         };
 
-        // Instantly update the UI so the card snaps into place without waiting
+        // Instantly update the UI
         setJobs(jobs.map(job => job.id === jobId ? updatedJobData : job));
 
+        // IMPORTANT: Prevent guests from sending API requests to Render
+        if (isDemoMode) return; 
+
         try {
-            // Silently ping Django in the background to save the move
             await updateJob(jobId, updatedJobData);
         } catch (err) {
             console.error("Failed to save move:", err);
             alert("Failed to save that move to the database. Reverting!");
-            fetchJobs(); // Revert the UI if the server crashes
+            fetchJobs(); 
         }
     };
-    // ----------------------------------------------------
 
     const getStatusBadge = (job) => {
         if (job.is_accepted) return <span style={{ backgroundColor: "#d4edda", color: "#155724", padding: "4px 8px", borderRadius: "4px", fontSize: "0.9em" }}>Accepted 🎉</span>;
@@ -117,14 +141,34 @@ export default function Dashboard() {
     return (
         <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
             
+            {/* --- 3. THE GUEST BANNER --- */}
+            {isDemoMode && (
+                <div style={{
+                    backgroundColor: '#fff3cd',
+                    color: '#856404',
+                    padding: '12px 15px',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                    border: '1px solid #ffeeba',
+                    marginBottom: '20px',
+                    borderRadius: '6px'
+                }}>
+                    👋 You are viewing the demo sandbox. 
+                    <Link to="/login" style={{ color: '#533f03', marginLeft: '10px', textDecoration: 'underline' }}>Log in</Link> or 
+                    <Link to="/register" style={{ color: '#533f03', marginLeft: '5px', textDecoration: 'underline' }}>Register</Link> to save your own applications!
+                </div>
+            )}
+
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                 <h2 style={{ margin: 0 }}>Your Job Applications</h2>
-                <Link to="/create-job" style={{ backgroundColor: "#007bff", color: "white", padding: "10px 15px", textDecoration: "none", borderRadius: "5px", fontWeight: "bold" }}>
-                    + Add New Job
-                </Link>
+                {/* Hide the Add button if they are a guest so they don't try to add to the fake DB */}
+                {!isDemoMode && (
+                    <Link to="/create-job" style={{ backgroundColor: "#007bff", color: "white", padding: "10px 15px", textDecoration: "none", borderRadius: "5px", fontWeight: "bold" }}>
+                        + Add New Job
+                    </Link>
+                )}
             </div>
 
-            {/* Added the Board toggle button */}
             {jobs.length > 0 && (
                 <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
                     <button onClick={() => setViewMode("list")} style={{ padding: "8px 16px", cursor: "pointer", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: viewMode === "list" ? "#007bff" : "white", color: viewMode === "list" ? "white" : "black", fontWeight: "bold" }}>
@@ -139,7 +183,6 @@ export default function Dashboard() {
                 </div>
             )}
             
-            {/* Conditional Rendering logic updated */}
             {viewMode === "stats" ? (
                 <StatsView jobs={jobs} />
             ) : viewMode === "board" ? (
@@ -192,7 +235,10 @@ export default function Dashboard() {
                                     </p>
 
                                     <div style={{ marginTop: "15px" }}>
-                                        <Link to={`/edit-job/${job.id}`} state={{ job: job }} style={{ backgroundColor: "#ffc107", color: "black", textDecoration: "none", padding: "6px 12px", borderRadius: "4px", marginRight: "10px", fontSize: "14px" }}>Edit</Link>
+                                        {/* Disabled edit/delete visually for guests so they aren't confused */}
+                                        {!isDemoMode && (
+                                            <Link to={`/edit-job/${job.id}`} state={{ job: job }} style={{ backgroundColor: "#ffc107", color: "black", textDecoration: "none", padding: "6px 12px", borderRadius: "4px", marginRight: "10px", fontSize: "14px" }}>Edit</Link>
+                                        )}
                                         <button onClick={() => handleDelete(job.id)} style={{ backgroundColor: "#ff4d4f", color: "white", border: "none", padding: "6px 12px", cursor: "pointer", borderRadius: "4px", fontSize: "14px" }}>Delete</button>
                                     </div>
                                 </div>
