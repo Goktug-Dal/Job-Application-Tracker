@@ -13,10 +13,10 @@ export default function Register() {
         setError(null);
 
         try {
-            await axios.post(
-                "https://job-application-tracker-7ykl.onrender.com/api/register/",
-                { username, password }
-            );
+            await axios.post("https://job-application-tracker-7ykl.onrender.com/api/register/", { 
+                username: username, 
+                password: password 
+            });
             
             alert("Account created successfully!");
             navigate("/login"); // Send them to login after creating the account
