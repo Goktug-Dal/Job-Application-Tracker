@@ -28,7 +28,7 @@ A full-stack web application that helps users organize and track their job appli
 
 **Database**
 
-* SQLite
+* PostgreSQL
 
 **Tools**
 
@@ -78,15 +78,13 @@ docker-compose up --build
 
 ## 🌐 Access the App
 
-* Frontend: http://localhost:3000
-* Backend API: http://localhost:8000
+https://job-application-tracker-wine-tau.vercel.app/
 
 ## 🔮 Future Improvements
 
 * Resume uploads
 * Email reminders
 * Interview scheduling
-* PostgreSQL deployment
 
 ## 👨‍💻 Author
 
