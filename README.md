@@ -38,14 +38,14 @@ A full-stack web application that helps users organize and track their job appli
 ## 🔗 Live Demo
 
 You can try the application here:
-https://your-project-name.vercel.app
+https://job-application-tracker-wine-tau.vercel.app/
 
 > Note: This is the easiest way to test the project without running it locally.
 
 ## 📦 Installation
 
 ```bash id="kq8m1v"
-git clone https://github.com/yourusername/job-tracker.git
+git clone https://github.com/Goktug-Dal/Job-Application-Tracker
 cd job-tracker
 ```
 
