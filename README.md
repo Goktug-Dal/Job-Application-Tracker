@@ -1,63 +1,77 @@
 # 💼 Full-Stack Job Application Tracker
 
-A full-stack web application that helps users organize and track their job applications. Built with React and Django REST Framework, featuring JWT authentication, analytics, and a drag-and-drop Kanban board.
+A full-stack web application that helps users organize and track their job applications. Built with **React** and **Django REST Framework**, featuring JWT authentication, analytics, and a drag-and-drop Kanban board.
+
+---
 
 ## 🚀 Features
 
-* User registration and login with JWT authentication
-* Create, update, and delete job applications
-* Drag-and-drop Kanban board for application tracking
-* Analytics dashboard with application statistics
-* Search, filter, and sort applications
-* REST API built with Django REST Framework
+- User registration and login with JWT authentication
+- Create, update, and delete job applications
+- Drag-and-drop Kanban board
+- Analytics dashboard with application statistics
+- Search, filter, and sort job applications
+- REST API built with Django REST Framework
+- PostgreSQL database
+- Docker support
+- Command-line interface (CLI) for adding jobs
+
+---
 
 ## 🛠️ Tech Stack
 
-**Frontend**
+### Frontend
 
-* React
-* React Router
-* Axios
-* Recharts
+- React
+- React Router
+- Axios
+- Recharts
 
-**Backend**
+### Backend
 
-* Django
-* Django REST Framework
-* SimpleJWT
+- Django
+- Django REST Framework
+- SimpleJWT
 
-**Database**
+### Database
 
-* SQLite
+- PostgreSQL
 
-**Tools**
+### DevOps & Tools
 
-* Docker
-* Docker Compose
+- Docker
+- Docker Compose
+
+---
 
 ## 🔗 Live Demo
 
-You can try the application here:
-https://your-project-name.vercel.app
+Try the application here:
 
-> Note: This is the easiest way to test the project without running it locally.
+**https://job-application-tracker-wine-tau.vercel.app/**
+
+> **Note:** The hosted version is the easiest way to explore the project without setting up the development environment.
+
+---
 
 ## 📦 Installation
 
-```bash id="kq8m1v"
-git clone https://github.com/yourusername/job-tracker.git
-cd job-tracker
+Clone the repository:
+
+```bash
+git clone https://github.com/Goktug-Dal/Job-Application-Tracker.git
+cd Job-Application-Tracker
 ```
 
-## ⚙️ Environment Setup
+---
 
-This project uses environment variables for configuration.
+## ⚙️ Environment Variables
 
-You must create a `.env` file in the backend directory before running the project.
+Create a `.env` file inside the backend directory.
 
-Example `.env`:
+Example:
 
-```env id="p7v2aa"
+```env
 SECRET_KEY=your_secret_key
 DEBUG=True
 
@@ -68,26 +82,108 @@ DATABASE_HOST=db
 DATABASE_PORT=5432
 ```
 
-> Note: `.env` is included in `.gitignore`, so it is not pushed to the repository for security reasons.
+> The `.env` file is excluded via `.gitignore` and should never be committed.
 
-## 🚀 Run with Docker
+---
 
-```bash id="m2n9kc"
+## 🚀 Running with Docker
+
+Build and start the application:
+
+```bash
 docker-compose up --build
 ```
 
-## 🌐 Access the App
+---
 
-* Frontend: http://localhost:3000
-* Backend API: http://localhost:8000
+# 🖥️ CLI Tool
+
+You can add job applications directly from the terminal without opening the web application.
+
+## Basic Usage
+
+```bash
+python tracker_cli.py \
+    -n "Backend Engineer" \
+    -l "https://linkedin.com/jobs/123" \
+    -u admin
+```
+
+---
+
+## Required Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `-n`, `--name` | Job title |
+| `-l`, `--link` | Job application URL |
+| `-u`, `--username` | Existing Django username |
+
+---
+
+## Optional Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `-c`, `--company` | Company name (default: `Unknown`) |
+| `--work_duration` | Work duration in days (default: `0`) |
+
+---
+
+## Status Flags
+
+Choose **one** application status.
+
+| Flag | Description |
+|------|-------------|
+| `--applied` | Applied |
+| `--interview` | In Interview Process |
+| `--accepted` | Accepted |
+| `--rejected` | Rejected |
+| `--no_response` | No Response |
+| `--hold` | On Hold |
+
+---
+
+## Work Type Flags
+
+These options are **mutually exclusive**.
+
+| Flag | Description |
+|------|-------------|
+| `--remote` | Remote |
+| `--hybrid` | Hybrid |
+| `--office` | Office (default) |
+
+---
+
+## Example
+
+```bash
+python tracker_cli.py \
+    -n "Backend Engineer" \
+    -l "https://linkedin.com/jobs/123" \
+    -u admin \
+    --remote \
+    --interview
+```
+
+---
 
 ## 🔮 Future Improvements
 
-* Resume uploads
-* Email reminders
-* Interview scheduling
-* PostgreSQL deployment
+- Resume uploads
+- Email reminders
+- Interview scheduling
+- Calendar integration
+- Company notes
+- Dark mode
+- Email notifications
+
+---
 
 ## 👨‍💻 Author
 
-Göktuğ Dal
+**Göktuğ Dal**
+
+- GitHub: https://github.com/Goktug-Dal
