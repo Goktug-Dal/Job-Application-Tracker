@@ -29,5 +29,8 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Django Checks
+        env:
+          #You have to add a secret key (from your .env) to Github repo 
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           python manage.py check
