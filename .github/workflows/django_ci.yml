@@ -28,9 +28,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Django Checks
+      - name: Run Django System Checks
         env:
-          #You have to add a secret key (from your .env) to Github repo 
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           python manage.py check
+
+      - name: Run Automated Test Suite
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          python manage.py test
