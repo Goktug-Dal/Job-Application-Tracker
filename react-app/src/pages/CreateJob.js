@@ -1,22 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createJob } from "../api/jobs";
+import "../styles/theme.css";
 
 export default function CreateJob() {
     const [name, setName] = useState("");
     const [applyLink, setApplyLink] = useState("");
-    const [status, setStatus] = useState("on_hold"); 
+    const [status, setStatus] = useState("on_hold");
     const [workType, setWorkType] = useState("is_office");
     const [duration, setDuration] = useState(0);
     const [company, setCompany] = useState("");
     const [notes, setNotes] = useState("");
 
     const [error, setError] = useState(null);
-    const navigate = useNavigate(); 
+    const [submitting, setSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
+        setSubmitting(true);
 
         const jobData = {
             name: name,
@@ -37,71 +40,76 @@ export default function CreateJob() {
 
         try {
             await createJob(jobData);
-            navigate("/"); 
+            navigate("/");
         } catch (err) {
             console.error("Failed to create job:", err);
             setError(err.response?.data ? JSON.stringify(err.response.data) : "Something went wrong.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
     return (
-        <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
-            <h2>Create New Job</h2>
-            {error && <p style={{ color: "red", backgroundColor: "#ffe6e6", padding: "10px", borderRadius: "5px" }}>{error}</p>}
+        <div className="dossier-shell">
+            <div className="dossier-card">
+                <p className="dossier-eyebrow">New Entry</p>
+                <h2 className="dossier-title">Log a Job</h2>
+                {error && <p className="error-strip">{error}</p>}
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                <div>
-                    <label>Job Name</label><br />
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required style={{ width: "100%", padding: "8px" }} />
-                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="field-group">
+                        <label className="field-label">Job Name</label>
+                        <input className="field-input" value={name} onChange={(e) => setName(e.target.value)} required />
+                    </div>
 
-                <div>
-                    <label>Application Link</label><br />
-                    <input type="url" value={applyLink} onChange={(e) => setApplyLink(e.target.value)} required placeholder="https://..." style={{ width: "100%", padding: "8px" }} />
-                </div>
+                    <div className="field-group">
+                        <label className="field-label">Company</label>
+                        <input className="field-input" value={company} onChange={(e) => setCompany(e.target.value)} required />
+                    </div>
 
-                <div>
-                <label>Company</label><br />
-                <input type="text" value={company} onChange={(e) => setCompany(e.target.value)} required style={{ width: "100%", padding: "8px" }} />
-                </div>
+                    <div className="field-group">
+                        <label className="field-label">Application Link</label>
+                        <input className="field-input" type="url" value={applyLink} onChange={(e) => setApplyLink(e.target.value)} required placeholder="https://..." />
+                    </div>
 
-                <div>
-                <label>Interview Notes / Details</label><br />
-                    <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows="4" style={{ width: "100%", padding: "8px", resize: "vertical" }} />
-                </div>
+                    <div className="field-group">
+                        <label className="field-label">Interview Notes / Details</label>
+                        <textarea className="field-textarea" value={notes} onChange={(e) => setNotes(e.target.value)} rows="4" />
+                    </div>
 
-                <div>
-                    <label>Job Status</label><br />
-                    <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ width: "100%", padding: "8px" }}>
-                        <option value="on_hold">On Hold (May apply later)</option>
-                        <option value="is_applied">Applied</option>
-                        <option value="in_interview_process">In Interview Process</option>
-                        <option value="is_accepted">Accepted / Offer Received</option>
-                        <option value="is_rejected">Rejected</option>
-                        <option value="is_no_response">No Response</option>
-                    </select>
-                </div>
-
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <div style={{ flex: 1 }}>
-                        <label>Work Type</label><br />
-                        <select value={workType} onChange={(e) => setWorkType(e.target.value)} style={{ width: "100%", padding: "8px" }}>
-                            <option value="is_office">Office</option>
-                            <option value="is_remote">Remote</option>
-                            <option value="is_hybrid">Hybrid</option>
+                    <div className="field-group">
+                        <label className="field-label">Job Status</label>
+                        <select className="field-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                            <option value="on_hold">On Hold (May apply later)</option>
+                            <option value="is_applied">Applied</option>
+                            <option value="in_interview_process">In Interview Process</option>
+                            <option value="is_accepted">Accepted / Offer Received</option>
+                            <option value="is_rejected">Rejected</option>
+                            <option value="is_no_response">No Response</option>
                         </select>
                     </div>
 
-                    <div style={{ flex: 1 }}>
-                        <label>Duration (Days)</label><br />
-                        <input type="number" min="0" value={duration} onChange={(e) => setDuration(e.target.value)} style={{ width: "100%", padding: "8px" }} />
-                    </div>
-                </div>
+                    <div className="field-row">
+                        <div className="field-group">
+                            <label className="field-label">Work Type</label>
+                            <select className="field-select" value={workType} onChange={(e) => setWorkType(e.target.value)}>
+                                <option value="is_office">Office</option>
+                                <option value="is_remote">Remote</option>
+                                <option value="is_hybrid">Hybrid</option>
+                            </select>
+                        </div>
 
-                <button type="submit" style={{ backgroundColor: "#28a745", color: "white", padding: "10px", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold", marginTop: "10px" }}>
-                    Save Job
-                </button>
-            </form>
+                        <div className="field-group">
+                            <label className="field-label">Duration (Days)</label>
+                            <input className="field-input" type="number" min="0" value={duration} onChange={(e) => setDuration(e.target.value)} />
+                        </div>
+                    </div>
+
+                    <button type="submit" className="btn btn-accept" disabled={submitting}>
+                        {submitting ? "Saving…" : "Save Job"}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

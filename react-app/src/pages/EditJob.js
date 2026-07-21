@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { updateJob } from "../api/jobs";
+import "../styles/theme.css";
 
 export default function EditJob() {
     const navigate = useNavigate();
@@ -10,7 +11,6 @@ export default function EditJob() {
     // Grab the current job data passed through the routing state
     const job = location.state?.job;
 
-    // Helper to extract the initial dropdown status from backend boolean flags
     const getInitialStatus = () => {
         if (!job) return "on_hold";
         if (job.is_accepted) return "is_accepted";
@@ -21,7 +21,6 @@ export default function EditJob() {
         return "on_hold";
     };
 
-    // Helper to extract the initial work type selection
     const getInitialWorkType = () => {
         if (!job) return "is_office";
         if (job.is_remote) return "is_remote";
@@ -29,7 +28,6 @@ export default function EditJob() {
         return "is_office";
     };
 
-    // Initialize all states with pre-existing job parameters
     const [name, setName] = useState(job?.name || "");
     const [company, setCompany] = useState(job?.company || "");
     const [applyLink, setApplyLink] = useState(job?.apply_link || "");
@@ -38,6 +36,7 @@ export default function EditJob() {
     const [workType, setWorkType] = useState(getInitialWorkType());
     const [duration, setDuration] = useState(job?.day_work_duration || 0);
     const [error, setError] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
     // Safety net: Redirect back if page is accessed directly without state data
     useEffect(() => {
@@ -47,8 +46,8 @@ export default function EditJob() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
+        setSubmitting(true);
 
-        // Package the data mapping choices back into explicit flags for Django
         const jobData = {
             name: name,
             company: company,
@@ -68,73 +67,78 @@ export default function EditJob() {
 
         try {
             await updateJob(id, jobData);
-            navigate("/"); 
+            navigate("/");
         } catch (err) {
             console.error("Failed to update job:", err);
             setError(err.response?.data ? JSON.stringify(err.response.data) : "Something went wrong.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
-    if (!job) return null; 
+    if (!job) return null;
 
     return (
-        <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
-            <h2>Edit Job Application</h2>
-            {error && <p style={{ color: "red", backgroundColor: "#ffe6e6", padding: "10px", borderRadius: "5px" }}>{error}</p>}
+        <div className="dossier-shell">
+            <div className="dossier-card">
+                <p className="dossier-eyebrow">Amend Entry</p>
+                <h2 className="dossier-title">Edit Job</h2>
+                {error && <p className="error-strip">{error}</p>}
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                <div>
-                    <label>Job Name</label><br />
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required style={{ width: "100%", padding: "8px" }} />
-                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="field-group">
+                        <label className="field-label">Job Name</label>
+                        <input className="field-input" value={name} onChange={(e) => setName(e.target.value)} required />
+                    </div>
 
-                <div>
-                    <label>Company</label><br />
-                    <input type="text" value={company} onChange={(e) => setCompany(e.target.value)} required style={{ width: "100%", padding: "8px" }} />
-                </div>
+                    <div className="field-group">
+                        <label className="field-label">Company</label>
+                        <input className="field-input" value={company} onChange={(e) => setCompany(e.target.value)} required />
+                    </div>
 
-                <div>
-                    <label>Application Link</label><br />
-                    <input type="url" value={applyLink} onChange={(e) => setApplyLink(e.target.value)} required style={{ width: "100%", padding: "8px" }} />
-                </div>
+                    <div className="field-group">
+                        <label className="field-label">Application Link</label>
+                        <input className="field-input" type="url" value={applyLink} onChange={(e) => setApplyLink(e.target.value)} required />
+                    </div>
 
-                <div>
-                    <label>Interview Notes / Details</label><br />
-                    <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows="4" style={{ width: "100%", padding: "8px", resize: "vertical" }} />
-                </div>
+                    <div className="field-group">
+                        <label className="field-label">Interview Notes / Details</label>
+                        <textarea className="field-textarea" value={notes} onChange={(e) => setNotes(e.target.value)} rows="4" />
+                    </div>
 
-                <div>
-                    <label>Job Status</label><br />
-                    <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ width: "100%", padding: "8px" }}>
-                        <option value="on_hold">On Hold (May apply later)</option>
-                        <option value="is_applied">Applied</option>
-                        <option value="in_interview_process">In Interview Process</option>
-                        <option value="is_accepted">Accepted / Offer Received</option>
-                        <option value="is_rejected">Rejected</option>
-                        <option value="is_no_response">No Response</option>
-                    </select>
-                </div>
-
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <div style={{ flex: 1 }}>
-                        <label>Work Type</label><br />
-                        <select value={workType} onChange={(e) => setWorkType(e.target.value)} style={{ width: "100%", padding: "8px" }}>
-                            <option value="is_office">Office</option>
-                            <option value="is_remote">Remote</option>
-                            <option value="is_hybrid">Hybrid</option>
+                    <div className="field-group">
+                        <label className="field-label">Job Status</label>
+                        <select className="field-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                            <option value="on_hold">On Hold (May apply later)</option>
+                            <option value="is_applied">Applied</option>
+                            <option value="in_interview_process">In Interview Process</option>
+                            <option value="is_accepted">Accepted / Offer Received</option>
+                            <option value="is_rejected">Rejected</option>
+                            <option value="is_no_response">No Response</option>
                         </select>
                     </div>
 
-                    <div style={{ flex: 1 }}>
-                        <label>Duration (Days)</label><br />
-                        <input type="number" min="0" value={duration} onChange={(e) => setDuration(e.target.value)} style={{ width: "100%", padding: "8px" }} />
-                    </div>
-                </div>
+                    <div className="field-row">
+                        <div className="field-group">
+                            <label className="field-label">Work Type</label>
+                            <select className="field-select" value={workType} onChange={(e) => setWorkType(e.target.value)}>
+                                <option value="is_office">Office</option>
+                                <option value="is_remote">Remote</option>
+                                <option value="is_hybrid">Hybrid</option>
+                            </select>
+                        </div>
 
-                <button type="submit" style={{ backgroundColor: "#007bff", color: "white", padding: "10px", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold", marginTop: "10px" }}>
-                    Update Job
-                </button>
-            </form>
+                        <div className="field-group">
+                            <label className="field-label">Duration (Days)</label>
+                            <input className="field-input" type="number" min="0" value={duration} onChange={(e) => setDuration(e.target.value)} />
+                        </div>
+                    </div>
+
+                    <button type="submit" className="btn btn-primary" disabled={submitting}>
+                        {submitting ? "Updating…" : "Update Job"}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

@@ -1,59 +1,87 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import "../styles/theme.css";
 
 export default function Navbar() {
     const navigate = useNavigate();
-    // useLocation forces the Navbar to re-render and check the token whenever the page changes
-    const location = useLocation(); 
-    
-    // Check if the user is currently logged in by looking for the token
+    const location = useLocation();
+
     const isAuthenticated = !!localStorage.getItem("access");
 
     const handleLogout = () => {
-        // 1. Remove the tokens to log them out
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
-        
-        // 2. Kick them back to the login page
         navigate("/login");
     };
 
     return (
-        <nav style={{ 
-            display: "flex", 
-            justifyContent: "space-between", 
-            alignItems: "center", 
-            padding: "15px 30px", 
-            backgroundColor: "#2c3e50", // Dark sleek background
-            color: "white",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
-        }}>
-            {/* LEFT SIDE: Logo / App Name */}
-            <h2 style={{ margin: 0 }}>
-                <Link to="/" style={{ textDecoration: "none", color: "white" }}>
-                    💼 Job Tracker
-                </Link>
-            </h2>
+        <nav
+            style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "14px 28px",
+                backgroundColor: "var(--ink)",
+                borderBottom: "3px solid var(--brand)",
+            }}
+        >
+            <Link
+                to="/"
+                style={{
+                    textDecoration: "none",
+                    color: "#ffffff",
+                    fontFamily: "var(--font-display)",
+                    fontWeight: 700,
+                    fontSize: "20px",
+                    letterSpacing: "0.01em",
+                }}
+            >
+                Job Tracker
+            </Link>
 
-            {/* RIGHT SIDE: Auth Links */}
-            <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "18px", fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 700, letterSpacing: "0.02em" }}>
                 {isAuthenticated ? (
                     <>
-                        <Link to="/" style={{ color: "white", textDecoration: "none", marginRight: "20px", fontWeight: "bold" }}>
+                        <Link
+                            to="/"
+                            style={{
+                                color: location.pathname === "/" ? "#8b7cff" : "#ffffff",
+                                textDecoration: "none",
+                            }}
+                        >
                             Dashboard
                         </Link>
-                        <button 
-                            onClick={handleLogout} 
-                            style={{ backgroundColor: "#e74c3c", color: "white", border: "none", padding: "8px 16px", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}
+                        <button
+                            onClick={handleLogout}
+                            style={{
+                                background: "transparent",
+                                border: "2px solid #ff9daf",
+                                color: "#ff9daf",
+                                borderRadius: "8px",
+                                padding: "7px 14px",
+                                fontFamily: "var(--font-display)",
+                                fontSize: "12.5px",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                            }}
                         >
                             Logout
                         </button>
                     </>
                 ) : (
                     <>
-                        <Link to="/login" style={{ color: "white", textDecoration: "none", marginRight: "20px", fontWeight: "bold" }}>
+                        <Link to="/login" style={{ color: "#ffffff", textDecoration: "none" }}>
                             Login
                         </Link>
-                        <Link to="/register" style={{ backgroundColor: "#27ae60", color: "white", textDecoration: "none", padding: "8px 16px", borderRadius: "5px", fontWeight: "bold" }}>
+                        <Link
+                            to="/register"
+                            style={{
+                                backgroundColor: "var(--brand)",
+                                color: "#ffffff",
+                                textDecoration: "none",
+                                padding: "8px 16px",
+                                borderRadius: "8px",
+                            }}
+                        >
                             Register
                         </Link>
                     </>
