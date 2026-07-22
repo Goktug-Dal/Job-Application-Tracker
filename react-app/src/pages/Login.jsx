@@ -16,7 +16,7 @@ export default function Login() {
         setSubmitting(true);
 
         try {
-            const response = await api.post("token/", { username, password });
+            const response = await axios.post("token/", { username, password });
 
             localStorage.setItem("access", response.data.access);
             localStorage.setItem("refresh", response.data.refresh);
