@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
-import { API_BASE_URL } from "../api/config";
+import api from "../api";
 import "../styles/theme.css";
 
 export default function Login() {
@@ -17,7 +16,7 @@ export default function Login() {
         setSubmitting(true);
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/token/`, { username, password });
+            const response = await api.post("token/", { username, password });
 
             localStorage.setItem("access", response.data.access);
             localStorage.setItem("refresh", response.data.refresh);
